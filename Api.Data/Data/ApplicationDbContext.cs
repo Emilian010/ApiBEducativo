@@ -10,11 +10,10 @@ namespace Api.Data.Data
     {
         public DbSet<View> Views { get; set; }
         public DbSet<AspNetUser> Users { get; set; }
-
         public DbSet<RoleView> ViewRols { get; set; }
-
         public DbSet<Servicios> Servicios { get; set; }
-
+        public DbSet<Cliente> Clientes { get; set; }
+        public DbSet<RegistroUsuarioDispositivo> RegistroUsuarioDispositivo { get; set; }
         public ApplicationDbContext(DbContextOptions options) : base(options)
         {
         }
@@ -25,8 +24,9 @@ namespace Api.Data.Data
 
             modelBuilder.Entity<View>().ToTable("View");
             modelBuilder.Entity<RoleView>().ToTable("RoleView");
-
             modelBuilder.Entity<Servicios>().ToTable("Servicios");
+            modelBuilder.Entity<Cliente>().ToTable("Cliente");
+            modelBuilder.Entity<RegistroUsuarioDispositivo>().ToTable("RegistroUsuarioDispositivo");
 
             modelBuilder.Ignore<AspNetRoles>();
             modelBuilder.Ignore<AspNetRoleClaim>();
@@ -34,7 +34,7 @@ namespace Api.Data.Data
             modelBuilder.Ignore<AspNetUserClaim>();
             modelBuilder.Ignore<AspNetUserLogin>();
             modelBuilder.Ignore<AspNetUserToken>();
-
+            
             //modelBuilder.Entity<View>()
             //.HasMany(e => e.Roles)
             //.WithMany(e => e.Views)

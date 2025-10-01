@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using Microsoft.Data.SqlClient;
 using Api.Data.AspNet;
+using System.Net;
+using Api.Models;
 
 namespace Api.Business.Managers
 {
@@ -31,29 +33,29 @@ namespace Api.Business.Managers
             _context = context;
         }
 
-        public async Task<ResponseItemDTO<UsuarioData>> UserRegister(UserLogin userDetails)
-        {
+        //public async Task<ResponseItemDTO<UsuarioDTO>> UserRegister(UserLogin userDetails)
+        //{
 
-            var errorList = new List<ErrorDTO>();
-            if (userDetails == null)
-            {
-                errorList.Add(new ErrorDTO { Message = "Error al intentar generar el usuario" });
-                return ResponseData.ResponseFailed<UsuarioData>(errorList);
-            }
+        //    var errorList = new List<ErrorDTO>();
+        //    if (userDetails == null)
+        //    {
+        //        errorList.Add(new ErrorDTO { Message = "Error al intentar generar el usuario" });
+        //        return ResponseData.ResponseFailed<UsuarioDTO>(errorList);
+        //    }
 
-            var identityUser = new IdentityUser() { UserName = userDetails.Email, Email = userDetails.Email };
-            var result = await _userManager.CreateAsync(identityUser, userDetails.Password);
-            if (!result.Succeeded)
-            {
-                var error = result.Errors.Select(x => new ErrorDTO { Code = x.Code, Message = x.Description }).ToList();
+        //    var identityUser = new IdentityUser() { UserName = userDetails.Email, Email = userDetails.Email };
+        //    var result = await _userManager.CreateAsync(identityUser, userDetails.Password);
+        //    if (!result.Succeeded)
+        //    {
+        //        var error = result.Errors.Select(x => new ErrorDTO { Code = x.Code, Message = x.Description }).ToList();
 
-                return ResponseData.ResponseFailed<UsuarioData>(error);
-            }
+        //        return ResponseData.ResponseFailed<UsuarioDTO>(error);
+        //    }
 
-            return ResponseData.ResponseSuccess(UserMap(identityUser));
+        //    return ResponseData.ResponseSuccess(UserMap(identityUser));
 
-        }
-        public async Task<ResponseItemDTO<UsuarioData>> Login(LoginCredentials credentials)
+        //}
+        public async Task<ResponseItemDTO<UsuarioDTO>> Login(LoginCredentials credentials)
         {
             var errorList = new List<ErrorDTO>();
 
@@ -62,60 +64,60 @@ namespace Api.Business.Managers
             if (credentials == null
               || (user = await ValidateUser(credentials)) == null)
             {
-                errorList.Add(new ErrorDTO { Message = "Usuario y/o incorrecto" });
-                return ResponseData.ResponseFailed<UsuarioData>(errorList);
+                errorList.Add(new ErrorDTO { Code="1000", Message = "Usuario y/o incorrecto" });
+                return ResponseData.ResponseFailed<UsuarioDTO>(errorList);
             }
 
-            UsuarioData userData = UserMap(user);
+            UsuarioDTO userData = UserMap(user);
             var token = _jwtGenerador.GenerateToken(userData);
             userData.Token = token?.ToString() ?? string.Empty;
 
             return ResponseData.ResponseSuccess(userData);
         }
 
-        public async Task<ResponseItemDTO<UsuarioData>> GetUser(string userName)
-        {
-            var errorList = new List<ErrorDTO>();
+        //public async Task<ResponseItemDTO<UsuarioDTO>> GetUser(string userName)
+        //{
+        //    var errorList = new List<ErrorDTO>();
 
-            var user = new IdentityUser();
+        //    var user = new IdentityUser();
 
-            user = await _userManager.FindByNameAsync(userName);
+        //    user = await _userManager.FindByNameAsync(userName);
 
-            if (user == null)
-            {
-                errorList.Add(new ErrorDTO { Message = "Usuario y/o incorrecto" });
-                return ResponseData.ResponseFailed<UsuarioData>(errorList);
-            }
+        //    if (user == null)
+        //    {
+        //        errorList.Add(new ErrorDTO { Message = "Usuario y/o incorrecto" });
+        //        return ResponseData.ResponseFailed<UsuarioDTO>(errorList);
+        //    }
 
-            UsuarioData userData = UserMap(user);
-            return ResponseData.ResponseSuccess(userData);
-        }
+        //    UsuarioDTO userData = UserMap(user);
+        //    return ResponseData.ResponseSuccess(userData);
+        //}
 
-        public async Task<ResponseItemDTO<UsuarioData>> UpdatePhoneUser(UsuarioData request)
-        {
-            var error = new ErrorDTO { Code = "1002", Message = "Error al intentar actualizar el usuario" };
+        //public async Task<ResponseItemDTO<UsuarioData>> UpdatePhoneUser(UsuarioData request)
+        //{
+        //    var error = new ErrorDTO { Code = "1002", Message = "Error al intentar actualizar el usuario" };
 
-            try
-            {
-                if (request == null)
-                {
-                    return ResponseData.ResponseFailed<UsuarioData>(error);
-                }
+        //    try
+        //    {
+        //        if (request == null)
+        //        {
+        //            return ResponseData.ResponseFailed<UsuarioData>(error);
+        //        }
 
-                var user = await _userManager.FindByNameAsync(request.Email);
-                user.PhoneNumber = request.PhoneNumber;
+        //        var user = await _userManager.FindByNameAsync(request.Email);
+        //        user.PhoneNumber = request.PhoneNumber;
 
-                var resultado = await _userManager.UpdateAsync(user);
+        //        var resultado = await _userManager.UpdateAsync(user);
 
-                return resultado != null ? ResponseData.ResponseSuccess(request) : ResponseData.ResponseFailed<UsuarioData>(error);
-            }
-            catch (Exception ex)
-            {
+        //        return resultado != null ? ResponseData.ResponseSuccess(request) : ResponseData.ResponseFailed<UsuarioData>(error);
+        //    }
+        //    catch (Exception ex)
+        //    {
 
-                return ResponseData.ResponseFailed<UsuarioData>(error);
-            }
+        //        return ResponseData.ResponseFailed<UsuarioData>(error);
+        //    }
 
-        }
+        //}
 
         public async Task<ResponseItemDTO<UserLogin>> UpdatePasswordUser(UserLogin request)
         {
@@ -155,35 +157,50 @@ namespace Api.Business.Managers
 
         }
 
-        private async Task<IdentityUser> ValidateUser(LoginCredentials credentials)
+        private async Task<UsuarioDTO> ValidateUser(LoginCredentials credentials)
         {
-            IdentityUser user = new IdentityUser();
-            var identityUser = await _userManager.FindByNameAsync(credentials.Email);
-            if (identityUser != null)
+            UsuarioDTO? user = new UsuarioDTO();
+            //var identityUser = await _userManager.FindByNameAsync(credentials.Email);
+            if (credentials != null)
             {
-
                 var parametros = new SqlParameter[]{
                     new("UserName", credentials.Email),
-                        new("Password", identityUser.PasswordHash)
+                    new("Password", credentials.Password),
+                    new("Cliente", credentials.ClienteId)
                 };
                 //var result = _userManager.PasswordHasher.VerifyHashedPassword(identityUser, identityUser.PasswordHash, credentials.Password);
-                var result = _context.Users.FromSqlRaw("EXEC GetUser @UserName,@Password ", parametros).ToList();
+                var result = _context.Users.FromSqlRaw("EXEC GetUser @UserName,@Password,@Cliente ", parametros).ToList();
 
-                if (!result.Any())
+                //if (!result.Any())
+                //{
+                //    identityUser.AccessFailedCount = identityUser.AccessFailedCount + 1;
+
+                //    var resultado = await _userManager.UpdateAsync(identityUser);
+                //}
+                user = !result.Any() ? null : result.Select(x => new UsuarioDTO
                 {
-                    identityUser.AccessFailedCount = identityUser.AccessFailedCount + 1;
-
-                    var resultado = await _userManager.UpdateAsync(identityUser);
-                }
-                user = !result.Any() ? null : result.Select(x => new IdentityUser { UserName = x.UserName, Email = x.Email }).First();
+                    UserName = x.UserName, 
+                    Email = x.Email,
+                    UsuarioId= x.UsuarioId,
+                    NombreCompleto =x.NombreCompleto,
+                    PerfilId = x.PerfilId,
+                    PerfilNombre = x.PerfilNombre,
+                    Activo = x.Activo,
+                    EscuelaId = x.EscuelaId,
+                    EscuelaNombre =x.EscuelaNombre,
+                    EscuelaLatitud =x.EscuelaLatitud,
+                    EscuelaLongitud =x.EscuelaLongitud,
+                    ImplementacionId =x.ImplementacionId,
+                    TokenDispositivo =x.TokenDispositivo
+                }).First();
             }
 
             return user;
         }
-        private UsuarioData UserMap(IdentityUser userIdentity)
+        private UsuarioDTO UserMap(IdentityUser userIdentity)
         {
             var serializedParent = JsonConvert.SerializeObject(userIdentity);
-            return JsonConvert.DeserializeObject<UsuarioData>(serializedParent) ?? new UsuarioData();
+            return JsonConvert.DeserializeObject<UsuarioDTO>(serializedParent) ?? new UsuarioDTO();
         }
 
     }

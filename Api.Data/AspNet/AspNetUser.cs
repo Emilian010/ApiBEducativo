@@ -1,4 +1,6 @@
-﻿namespace Api.Data.AspNet
+﻿using Api.Models;
+
+namespace Api.Data.AspNet
 {
     public partial class AspNetUser
     {
@@ -25,6 +27,19 @@
         public DateTimeOffset? LockoutEnd { get; set; } = DateTimeOffset.UtcNow;
         public bool LockoutEnabled { get; set; }
         public int? AccessFailedCount { get; set; }
+
+        public int UsuarioId { get; set; }
+        public string NombreCompleto { get; set; }
+        //public string Correo { get; set; }
+        public int PerfilId { get; set; }
+        public string PerfilNombre { get; set; }
+        public bool Activo { get; set; }
+        public int EscuelaId { get; set; }
+        public string EscuelaNombre { get; set; }
+        public double EscuelaLatitud { get; set; }
+        public double EscuelaLongitud { get; set; }
+        public int ImplementacionId { get; set; }
+        public string TokenDispositivo { get; set; }
 
         public virtual ICollection<AspNetUserClaim> AspNetUserClaims { get; set; }
         public virtual ICollection<AspNetUserLogin> AspNetUserLogins { get; set; }

@@ -21,18 +21,18 @@ namespace GestionSolicitudesWebApi.Controllers
         }
 
 
-        [HttpPost]
-        [Route("Register")]
-        public async Task<ActionResult<ResponseItemDTO<UsuarioData>>> Register([FromBody] UserLogin userLogin)
-        {
-            var response = await _authManager.UserRegister(userLogin);
-            if (response.data != null || response.Meta.Messages != null)
-            {
-                return Ok(response);
-            }
-            return NotFound(response);
+        //[HttpPost]
+        //[Route("Register")]
+        //public async Task<ActionResult<ResponseItemDTO<UsuarioData>>> Register([FromBody] UserLogin userLogin)
+        //{
+        //    var response = await _authManager.UserRegister(userLogin);
+        //    if (response.data != null || response.Meta.Messages != null)
+        //    {
+        //        return Ok(response);
+        //    }
+        //    return NotFound(response);
 
-        }
+        //}
 
         [HttpPost]
         [Route("Login")]
@@ -47,30 +47,30 @@ namespace GestionSolicitudesWebApi.Controllers
             return NotFound(response);
         }
 
-        [HttpGet("{userName}")]
-        public async Task<IActionResult> GetUser(string? userName)
-        {
-            var response = await _authManager.GetUser(userName);
-            if (response.data != null)
-            {
-                return Ok(response);
-            }
-            return NotFound(response);
-        }
+        //[HttpGet("{userName}")]
+        //public async Task<IActionResult> GetUser(string? userName)
+        //{
+        //    var response = await _authManager.GetUser(userName);
+        //    if (response.data != null)
+        //    {
+        //        return Ok(response);
+        //    }
+        //    return NotFound(response);
+        //}
 
-        [HttpPut]
-        [Route("UpdatePhoneUser")]
-        public async Task<IActionResult> UpdatePhoneUser(UsuarioData user)
-        {
-            var response = await _authManager.UpdatePhoneUser(user);
+        //[HttpPut]
+        //[Route("UpdatePhoneUser")]
+        //public async Task<IActionResult> UpdatePhoneUser(UsuarioData user)
+        //{
+        //    var response = await _authManager.UpdatePhoneUser(user);
 
-            if (response.data != null)
-            {
-                return Ok(response);
-            }
+        //    if (response.data != null)
+        //    {
+        //        return Ok(response);
+        //    }
 
-            return NotFound(response);
-        }
+        //    return NotFound(response);
+        //}
 
         [HttpPut]
         [Route("UpdatePwdUser")]

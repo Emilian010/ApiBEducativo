@@ -1,4 +1,5 @@
 ﻿using Api.Business.Contracts;
+using Api.Models;
 using Api.Models.Configuration;
 using Api.Models.User;
 using Microsoft.Extensions.Options;
@@ -17,7 +18,7 @@ namespace Api.Business.Managers
         {
             _appSettings = appSettings;
         }
-        public string GenerateToken(UsuarioData identityUser)
+        public string GenerateToken(UsuarioDTO identityUser)
         {
 
             var tokenHandler = new JwtSecurityTokenHandler();

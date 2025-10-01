@@ -14,6 +14,7 @@ using Microsoft.Data.SqlClient;
 using Api.Data.AspNet;
 using System.Net;
 using Api.Models;
+using System.Data;
 
 namespace Api.Business.Managers
 {
@@ -67,11 +68,16 @@ namespace Api.Business.Managers
                 errorList.Add(new ErrorDTO { Code="1000", Message = "Usuario y/o incorrecto" });
                 return ResponseData.ResponseFailed<UsuarioDTO>(errorList);
             }
-
+            
             UsuarioDTO userData = UserMap(user);
             var token = _jwtGenerador.GenerateToken(userData);
             userData.Token = token?.ToString() ?? string.Empty;
 
+            if (!userData.Activo)
+            {
+                errorList.Add(new ErrorDTO { Code = "1001", Message = "Usuario inactivo" });
+                return ResponseData.ResponseFailed<UsuarioDTO>(errorList);
+            }
             return ResponseData.ResponseSuccess(userData);
         }
 
@@ -160,7 +166,6 @@ namespace Api.Business.Managers
         private async Task<UsuarioDTO> ValidateUser(LoginCredentials credentials)
         {
             UsuarioDTO? user = new UsuarioDTO();
-            //var identityUser = await _userManager.FindByNameAsync(credentials.Email);
             if (credentials != null)
             {
                 var parametros = new SqlParameter[]{
@@ -168,15 +173,8 @@ namespace Api.Business.Managers
                     new("Password", credentials.Password),
                     new("Cliente", credentials.ClienteId)
                 };
-                //var result = _userManager.PasswordHasher.VerifyHashedPassword(identityUser, identityUser.PasswordHash, credentials.Password);
                 var result = _context.Users.FromSqlRaw("EXEC GetUser @UserName,@Password,@Cliente ", parametros).ToList();
 
-                //if (!result.Any())
-                //{
-                //    identityUser.AccessFailedCount = identityUser.AccessFailedCount + 1;
-
-                //    var resultado = await _userManager.UpdateAsync(identityUser);
-                //}
                 user = !result.Any() ? null : result.Select(x => new UsuarioDTO
                 {
                     UserName = x.UserName, 
@@ -193,6 +191,31 @@ namespace Api.Business.Managers
                     ImplementacionId =x.ImplementacionId,
                     TokenDispositivo =x.TokenDispositivo
                 }).First();
+                if (user != null)
+                {
+                    switch (user.PerfilNombre.ToUpper())
+                    {
+                        case "ALUMNO":
+                            var param = new SqlParameter[]{
+                                new("UserId", user.UsuarioId),
+                                new("Cliente", credentials.ClienteId)
+                            };
+                            var resultAlumnos = _context.Alumnos.FromSqlRaw("EXEC GetAlumnos @UserId,@Cliente ", param).ToList();
+                            List<AlumnoDTO> vListaAlumno = new List<AlumnoDTO>();
+
+                            foreach (AlumnoDTO vItem in resultAlumnos)
+                            {
+                                vListaAlumno.Add(vItem);
+                            }
+                            user.ListaAlumnos = vListaAlumno;
+                            break;
+                        case "TUTOR":
+                            break;
+                        case "PROFESOR":
+                            break;
+                    }
+                }
+                              
             }
 
             return user;

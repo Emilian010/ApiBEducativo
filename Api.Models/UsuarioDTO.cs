@@ -12,7 +12,6 @@ namespace Api.Models
         public string Token { get; set; } = string.Empty;
         public int UsuarioId { get; set; }
         public string NombreCompleto { get; set; }
-        //public string Correo { get; set; }
         public int PerfilId { get; set; }
         public string PerfilNombre { get; set; }
         public bool Activo { get; set; }

@@ -15,6 +15,7 @@ using Api.Data.AspNet;
 using System.Net;
 using Api.Models;
 using System.Data;
+using System.Text;
 
 namespace Api.Business.Managers
 {
@@ -170,7 +171,7 @@ namespace Api.Business.Managers
             {
                 var parametros = new SqlParameter[]{
                     new("UserName", credentials.Email),
-                    new("Password", credentials.Password),
+                    new("Password", EncriptaStringAES(credentials.Password)),
                     new("Cliente", credentials.ClienteId)
                 };
                 var result = _context.Users.FromSqlRaw("EXEC GetUser @UserName,@Password,@Cliente ", parametros).ToList();
@@ -246,6 +247,58 @@ namespace Api.Business.Managers
             var serializedParent = JsonConvert.SerializeObject(userIdentity);
             return JsonConvert.DeserializeObject<UsuarioDTO>(serializedParent) ?? new UsuarioDTO();
         }
+        private static string EncriptaStringAES(string valor)
+        {
+            string palabraPaso = "GaqpWvxaLKrAsSkeKomP9MAxX9BQWTfrEn27Rud+/aZ+C863NcoSrcHixqExh9H72UMVzG8+nL8DvL9u";
+            string valorRGBSalt = "uKFTJbhr3bgmTu4yT6mmnBct4xP4qkypTUzaNr+qT7eENuSCfGilOu3Our2nT09WZE1QwV1jAalFndDW";
+            string algoritmoEncriptacionHASH = "MD5";
+            int iteraciones = 22;
+            string vectorInicial = "cBP5zBua/uRKqVPc";
+            int tamanoClave = 128;
+
+            try
+            {
+                byte[] InitialVectorBytes = Encoding.ASCII.GetBytes(vectorInicial);
+                byte[] saltValueBytes = Encoding.ASCII.GetBytes(valorRGBSalt);
+                byte[] plainTextBytes = Encoding.UTF8.GetBytes(valor);
+
+                PasswordDeriveBytes password =
+                    new PasswordDeriveBytes(palabraPaso, saltValueBytes,
+                        algoritmoEncriptacionHASH, iteraciones);
+
+                byte[] keyBytes = password.GetBytes(tamanoClave / 8);
+
+                RijndaelManaged symmetricKey = new RijndaelManaged();
+
+                symmetricKey.Mode = CipherMode.CBC;
+
+                ICryptoTransform encryptor =
+                    symmetricKey.CreateEncryptor(keyBytes, InitialVectorBytes);
+
+                MemoryStream memoryStream = new MemoryStream();
+
+                CryptoStream cryptoStream =
+                    new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write);
+
+                cryptoStream.Write(plainTextBytes, 0, plainTextBytes.Length);
+
+                cryptoStream.FlushFinalBlock();
+
+                byte[] cipherTextBytes = memoryStream.ToArray();
+
+                memoryStream.Close();
+                cryptoStream.Close();
+
+                string textoCifradoFinal = Convert.ToBase64String(cipherTextBytes);
+
+                return textoCifradoFinal;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
 
     }
 }

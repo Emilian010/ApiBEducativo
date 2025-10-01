@@ -196,24 +196,45 @@ namespace Api.Business.Managers
                     switch (user.PerfilNombre.ToUpper())
                     {
                         case "ALUMNO":
+                        case "TUTOR":
                             var param = new SqlParameter[]{
                                 new("UserId", user.UsuarioId),
                                 new("Cliente", credentials.ClienteId)
                             };
                             var resultAlumnos = _context.Alumnos.FromSqlRaw("EXEC GetAlumnos @UserId,@Cliente ", param).ToList();
-                            List<AlumnoDTO> vListaAlumno = new List<AlumnoDTO>();
+                            List<AlumnoDTO> ListaAlumno = new List<AlumnoDTO>();
 
                             foreach (AlumnoDTO vItem in resultAlumnos)
                             {
-                                vListaAlumno.Add(vItem);
+                                ListaAlumno.Add(vItem);
                             }
-                            user.ListaAlumnos = vListaAlumno;
-                            break;
-                        case "TUTOR":
+                            user.ListaAlumnos = ListaAlumno;
                             break;
                         case "PROFESOR":
                             break;
                     }
+                    var response = new List<RoleViewDTO>();
+                    var viewList = await _context.Views.ToListAsync();
+                    var viewParent = viewList.Where(x => x.ParentId != null).Select(x => x.ParentId).Distinct();
+                    var views = viewList.Where(x => viewParent.All(p => p != x.ViewId)).Select(x => x);
+                    var ViewRol = await _context.ViewRols.Where(x => x.Roles.Name.ToUpper() == user.PerfilNombre.ToUpper()).Select(x => x).ToListAsync();
+
+                    response = (from v in views
+                                join vr in ViewRol
+                                   on v.ViewId equals vr.Views.ViewId into grouping
+                                from vlist in grouping.DefaultIfEmpty()
+
+                                select new RoleViewDTO
+                                {
+                                    RolesId = vlist != null ? vlist.RolesId : user.PerfilId.ToString(),
+                                    IsAdd = vlist != null ? vlist.IsAdd : false,
+                                    IsView = vlist != null ? vlist.IsView : false,
+                                    IsUpdate = vlist != null ? vlist.IsUpdate : false,
+                                    IsDelete = vlist != null ? vlist.IsDelete : false,
+                                    Views = new ViewDTO { Description = v.Description, ViewId = v.ViewId },
+                                    Parent = v.Parent != null ? new ViewDTO { Description = v.Parent.Description, ViewId = v.Parent.ViewId } : new ViewDTO()
+                                }).ToList();
+                    user.ListaRolView = response;
                 }
                               
             }

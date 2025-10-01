@@ -22,6 +22,7 @@ namespace Api.Models
         public int ImplementacionId { get; set; }
         public string TokenDispositivo { get; set; }
         public List<AlumnoDTO>  ListaAlumnos { get; set; }
+        public List<RoleViewDTO> ListaRolView { get; set; }
 
     }
 }

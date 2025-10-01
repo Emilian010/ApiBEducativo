@@ -25,7 +25,7 @@ namespace Api.Models
         public string LugarSalida { get; set; }
         public string InstruccionesSalida { get; set; }
 
-        List<PagosDTO> ListaPagos { get; set; }
-        List<CalificacionesDTO> ListaCalificaciones { get; set; }
+        //List<PagosDTO> ListaPagos { get; set; }
+        //List<CalificacionesDTO> ListaCalificaciones { get; set; }
     }
 }

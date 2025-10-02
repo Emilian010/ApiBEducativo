@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Api.Business.Contracts
 {
-    public interface IRegistroUsuarioDispositivo
+    public interface IRegistroUsuarioDispositivoManager
     {
         Task<ResponseItemDTO<RegistroUsuarioDispositivo>> Create(RegistroUsuarioDispositivo request);
         Task<ResponseListDTO<RegistroUsuarioDispositivo>> GetList();

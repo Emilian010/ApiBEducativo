@@ -10,9 +10,9 @@ namespace ApiBEducativo.Controllers
     //[Authorize]
     public class RegistroUsuarioDispositivoController : Controller
     {
-        private readonly IRegistroUsuarioDispositivo _registrouserdispManager;
+        private readonly IRegistroUsuarioDispositivoManager _registrouserdispManager;
 
-        public RegistroUsuarioDispositivoController(IRegistroUsuarioDispositivo registrouserdispManager)
+        public RegistroUsuarioDispositivoController(IRegistroUsuarioDispositivoManager registrouserdispManager)
         {
             _registrouserdispManager = registrouserdispManager;
         }

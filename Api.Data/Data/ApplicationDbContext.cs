@@ -17,6 +17,8 @@ namespace Api.Data.Data
         public DbSet<RegistroUsuarioDispositivo> RegistroUsuarioDispositivo { get; set; }
 
         public DbSet<AlumnoDTO> Alumnos { get; set; }
+        public DbSet<PagosDTO> Pagos { get; set; }
+        public DbSet<CalificacionesDTO> Calificaciones { get; set; }
         public ApplicationDbContext(DbContextOptions options) : base(options)
         {
         }
@@ -32,6 +34,12 @@ namespace Api.Data.Data
             modelBuilder.Entity<RegistroUsuarioDispositivo>().ToTable("RegistroUsuarioDispositivo");
 
             modelBuilder.Entity<AlumnoDTO>().HasNoKey();
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<PagosDTO>().HasNoKey();
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<CalificacionesDTO>().HasNoKey();
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Ignore<AspNetRoles>();

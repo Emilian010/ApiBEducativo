@@ -10,8 +10,11 @@ namespace Api.Models
     {
         public int Id { get; set; }
         public string ConceptoPago { get; set; }
-        public decimal Monto { get; set; }
+        public double Monto { get; set; }
         public int DiasAtraso { get; set; }
         public bool PagoCubierto { get; set; }
+        public string Periodo { get; set; }
+        public bool PeriodoActual { get; set; }
+        public DateTime FechaLimitedePago { get; set; }
     }
 }

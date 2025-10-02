@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Api.Business.Managers
 {
-    public class RegistroUsuarioDispositivoManager : IRegistroUsuarioDispositivo
+    public class RegistroUsuarioDispositivoManager : IRegistroUsuarioDispositivoManager
     {
         private readonly ApplicationDbContext _context;
 

@@ -19,6 +19,7 @@ namespace Api.Data.Data
         public DbSet<AlumnoDTO> Alumnos { get; set; }
         public DbSet<PagosDTO> Pagos { get; set; }
         public DbSet<CalificacionesDTO> Calificaciones { get; set; }
+        public DbSet<NotificacionDTO> Notificaciones { get; set; }
         public ApplicationDbContext(DbContextOptions options) : base(options)
         {
         }
@@ -40,6 +41,7 @@ namespace Api.Data.Data
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<CalificacionesDTO>().HasNoKey();
+            modelBuilder.Entity<NotificacionDTO>().HasNoKey();
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Ignore<AspNetRoles>();
@@ -48,7 +50,7 @@ namespace Api.Data.Data
             modelBuilder.Ignore<AspNetUserClaim>();
             modelBuilder.Ignore<AspNetUserLogin>();
             modelBuilder.Ignore<AspNetUserToken>();
-            
+
             //modelBuilder.Entity<View>()
             //.HasMany(e => e.Roles)
             //.WithMany(e => e.Views)

@@ -34,6 +34,7 @@ namespace GestionSolicitudesWebApi
             builder.Services.AddTransient<IRegistroUsuarioDispositivoManager, RegistroUsuarioDispositivoManager>();
             builder.Services.AddTransient<IPagosManager, PagosManager>();
             builder.Services.AddTransient<ICalificacionesManager, CalificacionesManager>();
+            builder.Services.AddTransient<INotificacionesManager, NotificacionesManager>();
             builder.Services.AddControllers();
 
             var jwtSection = builder.Configuration.GetSection("Settings");

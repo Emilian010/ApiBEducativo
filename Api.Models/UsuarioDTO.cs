@@ -7,9 +7,10 @@ using System.Threading.Tasks;
 
 namespace Api.Models
 {
-    public class UsuarioDTO: IdentityUser
+    public class UsuarioDTO : IdentityUser
     {
         public string Token { get; set; } = string.Empty;
+        public string Data { get; set; } = string.Empty;
         public int UsuarioId { get; set; }
         public string NombreCompleto { get; set; }
         public int PerfilId { get; set; }
@@ -21,7 +22,7 @@ namespace Api.Models
         public double EscuelaLongitud { get; set; }
         public int ImplementacionId { get; set; }
         public string TokenDispositivo { get; set; }
-        public List<AlumnoDTO>  ListaAlumnos { get; set; }
+        public List<AlumnoDTO> ListaAlumnos { get; set; }
         public List<RoleViewDTO> ListaRolView { get; set; }
 
     }

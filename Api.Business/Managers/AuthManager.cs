@@ -11,8 +11,6 @@ using Api.Data.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using Microsoft.Data.SqlClient;
-using Api.Data.AspNet;
-using System.Net;
 using Api.Models;
 using System.Data;
 using System.Text;
@@ -66,20 +64,27 @@ namespace Api.Business.Managers
             if (credentials == null
               || (user = await ValidateUser(credentials)) == null)
             {
-                errorList.Add(new ErrorDTO { Code="1000", Message = "Usuario y/o incorrecto" });
+                errorList.Add(new ErrorDTO { Code = "1000", Message = "Usuario y/o incorrecto" });
                 return ResponseData.ResponseFailed<UsuarioDTO>(errorList);
             }
-            
+
+            var serializedParent = JsonConvert.SerializeObject(user);
+            var data = EncriptaStringAES(serializedParent);
+
             UsuarioDTO userData = UserMap(user);
             var token = _jwtGenerador.GenerateToken(userData);
-            userData.Token = token?.ToString() ?? string.Empty;
+            UsuarioDTO userResponse = new()
+            {
+                Token = token?.ToString() ?? string.Empty,
+                Data = data
+            };
 
             if (!userData.Activo)
             {
                 errorList.Add(new ErrorDTO { Code = "1001", Message = "Usuario inactivo" });
                 return ResponseData.ResponseFailed<UsuarioDTO>(errorList);
             }
-            return ResponseData.ResponseSuccess(userData);
+            return ResponseData.ResponseSuccess(userResponse);
         }
 
         //public async Task<ResponseItemDTO<UsuarioDTO>> GetUser(string userName)
@@ -178,19 +183,19 @@ namespace Api.Business.Managers
 
                 user = !result.Any() ? null : result.Select(x => new UsuarioDTO
                 {
-                    UserName = x.UserName, 
+                    UserName = x.UserName,
                     Email = x.Email,
-                    UsuarioId= x.UsuarioId,
-                    NombreCompleto =x.NombreCompleto,
+                    UsuarioId = x.UsuarioId,
+                    NombreCompleto = x.NombreCompleto,
                     PerfilId = x.PerfilId,
                     PerfilNombre = x.PerfilNombre,
                     Activo = x.Activo,
                     EscuelaId = x.EscuelaId,
-                    EscuelaNombre =x.EscuelaNombre,
-                    EscuelaLatitud =x.EscuelaLatitud,
-                    EscuelaLongitud =x.EscuelaLongitud,
-                    ImplementacionId =x.ImplementacionId,
-                    TokenDispositivo =x.TokenDispositivo
+                    EscuelaNombre = x.EscuelaNombre,
+                    EscuelaLatitud = x.EscuelaLatitud,
+                    EscuelaLongitud = x.EscuelaLongitud,
+                    ImplementacionId = x.ImplementacionId,
+                    TokenDispositivo = x.TokenDispositivo
                 }).First();
                 if (user != null)
                 {
@@ -237,7 +242,7 @@ namespace Api.Business.Managers
                                 }).ToList();
                     user.ListaRolView = response;
                 }
-                              
+
             }
 
             return user;
@@ -245,6 +250,7 @@ namespace Api.Business.Managers
         private UsuarioDTO UserMap(IdentityUser userIdentity)
         {
             var serializedParent = JsonConvert.SerializeObject(userIdentity);
+
             return JsonConvert.DeserializeObject<UsuarioDTO>(serializedParent) ?? new UsuarioDTO();
         }
         private static string EncriptaStringAES(string valor)
